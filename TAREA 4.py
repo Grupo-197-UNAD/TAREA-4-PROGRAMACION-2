@@ -91,7 +91,7 @@ class Reserva:  # Clase para reservas
 
     def calcular_total(self):  # Método para calcular costo total
         return self.servicio.calcular_costo(self.horas)  # Llama al servicio
-
+            
 
 # ===================== INTERFAZ GRÁFICA =====================
 
@@ -132,10 +132,13 @@ class App:  # Clase principal de la aplicación
 
         # ===== BOTÓN MOSTRAR =====
         tk.Button(root, text="Mostrar Reservas", command=self.mostrar_reservas).grid(row=5, column=0, columnspan=2)
+        
+        # ===== BOTON ELIMINAR =====
+        tk.Button(root,text="Eliminar Reserva", command=self.eliminar_reserva).grid(row=6, column=0, columnspan=2) # Elimina las reservas
 
         # ===== LISTA =====
         self.lista = tk.Listbox(root, width=60)  # Lista visual
-        self.lista.grid(row=6, column=0, columnspan=2)  # Posición
+        self.lista.grid(row=7, column=0, columnspan=2)  # Posición
 
     # ===================== FUNCIÓN CREAR RESERVA =====================
     def crear_reserva(self):
@@ -185,6 +188,25 @@ class App:  # Clase principal de la aplicación
             texto = f"{r.cliente.nombre} - {r.servicio.nombre} - ${r.calcular_total()} - {r.estado}"  # Formato
             self.lista.insert(tk.END, texto)  # Inserta en lista
 
+    # ===================== ELIMINAR RESERVA =======================
+    def eliminar_reserva(self):
+
+        try:
+
+            seleccion = self.lista.curselection() # Obtiene la reserva seleccionada en la lista 
+            if not seleccion:
+                raise ErrorReserva("Debe seleccionar una reserva") # verifica si el usuario selecciona una reserva
+            indice = seleccion[0]   # Guarda la posicion de la reserva sellecionada
+            del self.reservas[indice] # Elimina la reserva de la lista 
+            self.mostrar_reservas() # Actualiza la lista de reservas
+            messagebox.showinfo("Exito", "Reserva eliminada correctamente")  # Mensaje de confirmacion 
+        except ErrorSistema as e:
+            registrar_log(str(e)) # Guarda errores personalizados en el log
+            messagebox.showerror("Error", str(e)) # Muestra mensaje de error
+
+        except Exception as e:
+            registrar_log("Error inesperado:", str(e))# Guarda errores inesperados
+            messagebox.showerror("Error", "No se pudo eleiminar la reserva")  # Muestra mensaje de error  
 
 # ===================== EJECUCIÓN =====================
 
